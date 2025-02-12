@@ -12,35 +12,56 @@ struct ContentView: View {
     @State private var isAnswered = false // Track if the user already selected an answer
 
     var body: some View {
-        VStack {
-            Text("Is this number prime?")
-                .font(.title)
-                .padding()
+        ZStack {
+            Color(.systemTeal)
+                .opacity(0.4)
+                .edgesIgnoringSafeArea(.all)
             
-            Text("\(number)") // Display the random number
-                .font(.system(size: 60, weight: .bold))
-                .padding()
-            
-            HStack {
-                Button("Prime") {
-                    checkAnswer(isPrime: true)
-                }
-                .font(.title)
-                .frame(width: 120, height: 50)
-                .background(isAnswered ? Color.gray : Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .disabled(isAnswered) // Disable after first selection
+            VStack(spacing: 30) {
+                Text("Is this number prime?")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                    .bold()
+                    .shadow(radius: 5)
                 
-                Button("Not Prime") {
-                    checkAnswer(isPrime: false)
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: 220, height: 120)
+                    .overlay(
+                        Text("\(number)")
+                            .font(.system(size: 50, weight: .bold))
+                            .foregroundColor(Color(.systemIndigo))
+                    )
+                    .shadow(radius: 10)
+                
+                HStack(spacing: 20) {
+                    Button(action: {
+                        checkAnswer(isPrime: true)
+                    }) {
+                        Text("Prime")
+                            .font(.title)
+                            .frame(width: 150, height: 60)
+                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(isAnswered)
+                    
+                    Button(action: {
+                        checkAnswer(isPrime: false)
+                    }) {
+                        Text("Not Prime")
+                            .font(.title)
+                            .frame(width: 150, height: 60)
+                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(isAnswered)
                 }
-                .font(.title)
-                .frame(width: 120, height: 50)
-                .background(isAnswered ? Color.gray : Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .disabled(isAnswered) // Disable after first selection
+                .padding(.top, 20)
             }
             .padding()
         }
