@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var number = Int.random(in: 1...100) // Generate a random number
     @State private var isAnswered = false // Track if the user already selected an answer
+    @State private var score = 0 // User score
 
     var body: some View {
         ZStack {
@@ -18,13 +19,20 @@ struct ContentView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 30) {
+                // Score Display
+                Text("Score: \(score)")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .bold()
+                    .padding(.top, 10)
+
                 Text("Is this number prime?")
                     .font(.largeTitle)
                     .foregroundColor(.white)
                     .bold()
                     .shadow(radius: 5)
                 
-                // Number display inside a rounded card
+                // Number display inside a rounded card with transparency
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 220, height: 120)
@@ -94,15 +102,17 @@ struct ContentView: View {
         return true
     }
 
-    // Check user answer and disable buttons after first choice
+    // Check user answer, update score, and disable buttons
     func checkAnswer(isPrime: Bool) {
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true // Disable buttons after answering
 
         if isPrime == correctAnswer {
-            print("Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime").")
+            score += 1 // Increase score on correct answer
+            print("Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime"). Score: \(score)")
         } else {
-            print("Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime").")
+            score -= 1 // Decrease score on incorrect answer
+            print("Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime"). Score: \(score)")
         }
     }
 
