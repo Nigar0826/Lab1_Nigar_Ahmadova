@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var number = Int.random(in: 1...100) // Generate a random number
+    @State private var isAnswered = false // Track if the user already selected an answer
 
     var body: some View {
         VStack {
@@ -26,24 +27,26 @@ struct ContentView: View {
                 }
                 .font(.title)
                 .frame(width: 120, height: 50)
-                .background(Color.blue)
+                .background(isAnswered ? Color.gray : Color.blue)
                 .foregroundColor(.white)
                 .cornerRadius(10)
+                .disabled(isAnswered) // Disable after first selection
                 
                 Button("Not Prime") {
                     checkAnswer(isPrime: false)
                 }
                 .font(.title)
                 .frame(width: 120, height: 50)
-                .background(Color.red)
+                .background(isAnswered ? Color.gray : Color.red)
                 .foregroundColor(.white)
                 .cornerRadius(10)
+                .disabled(isAnswered) // Disable after first selection
             }
             .padding()
         }
     }
 
-    // ✅ Prime Number Checker Function
+    // Prime Number Checker Function
     func isPrime(_ num: Int) -> Bool {
         if num < 2 { return false }
         for i in 2..<num {
@@ -54,14 +57,15 @@ struct ContentView: View {
         return true
     }
 
-    // ✅ Now checkAnswer() explicitly refers to self.isPrime(number)
+    // Check user answer and disable buttons after first choice
     func checkAnswer(isPrime: Bool) {
-        let correctAnswer = self.isPrime(self.number)  // Fixed the function call
+        let correctAnswer = self.isPrime(self.number)
+        isAnswered = true // Disable buttons after answering
 
         if isPrime == correctAnswer {
-            print("✅ Correct! \(number) is \(isPrime ? "Prime" : "Not Prime").")
+            print("Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime").")
         } else {
-            print("❌ Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime").")
+            print("Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime").")
         }
     }
 }
