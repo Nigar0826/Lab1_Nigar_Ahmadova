@@ -24,6 +24,7 @@ struct ContentView: View {
                     .bold()
                     .shadow(radius: 5)
                 
+                // Number display inside a rounded card
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 220, height: 120)
@@ -62,6 +63,21 @@ struct ContentView: View {
                     .disabled(isAnswered)
                 }
                 .padding(.top, 20)
+
+                // New round button
+                Button(action: {
+                    generateNewNumber()
+                }) {
+                    Text("Next Number")
+                        .font(.title2)
+                        .frame(width: 180, height: 50)
+                        .background(Color.green.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(15)
+                        .shadow(radius: 5)
+                }
+                .padding(.top, 10)
+                .disabled(!isAnswered) // Only enable after answering
             }
             .padding()
         }
@@ -88,6 +104,12 @@ struct ContentView: View {
         } else {
             print("Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime").")
         }
+    }
+
+    // Generate a new number and reset state
+    func generateNewNumber() {
+        number = Int.random(in: 1...100) // Generate a new number
+        isAnswered = false // Reset button state
     }
 }
 
