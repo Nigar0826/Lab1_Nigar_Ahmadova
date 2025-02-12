@@ -22,7 +22,7 @@ struct ContentView: View {
             
             HStack {
                 Button("Prime") {
-                    print("Prime button tapped")
+                    checkAnswer(isPrime: true)
                 }
                 .font(.title)
                 .frame(width: 120, height: 50)
@@ -31,7 +31,7 @@ struct ContentView: View {
                 .cornerRadius(10)
                 
                 Button("Not Prime") {
-                    print("Not Prime button tapped")
+                    checkAnswer(isPrime: false)
                 }
                 .font(.title)
                 .frame(width: 120, height: 50)
@@ -40,6 +40,28 @@ struct ContentView: View {
                 .cornerRadius(10)
             }
             .padding()
+        }
+    }
+
+    // ✅ Prime Number Checker Function
+    func isPrime(_ num: Int) -> Bool {
+        if num < 2 { return false }
+        for i in 2..<num {
+            if num % i == 0 {
+                return false
+            }
+        }
+        return true
+    }
+
+    // ✅ Now checkAnswer() explicitly refers to self.isPrime(number)
+    func checkAnswer(isPrime: Bool) {
+        let correctAnswer = self.isPrime(self.number)  // Fixed the function call
+
+        if isPrime == correctAnswer {
+            print("✅ Correct! \(number) is \(isPrime ? "Prime" : "Not Prime").")
+        } else {
+            print("❌ Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime").")
         }
     }
 }
