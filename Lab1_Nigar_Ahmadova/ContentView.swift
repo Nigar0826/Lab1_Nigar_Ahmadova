@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var number = Int.random(in: 1...100) // Generate a random number
     @State private var isAnswered = false // Track if the user already selected an answer
     @State private var score = 0 // User score
+    @State private var resultMessage = "" // Message to display result
 
     var body: some View {
         ZStack {
@@ -18,7 +19,7 @@ struct ContentView: View {
                 .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 30) {
+            VStack(spacing: 20) {
                 // Score Display
                 Text("Score: \(score)")
                     .font(.title2)
@@ -32,7 +33,7 @@ struct ContentView: View {
                     .bold()
                     .shadow(radius: 5)
                 
-                // Number display inside a rounded card with transparency
+                // Number display inside a rounded card
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 220, height: 120)
@@ -42,6 +43,13 @@ struct ContentView: View {
                             .foregroundColor(Color(.systemIndigo))
                     )
                     .shadow(radius: 10)
+
+                // Show the result message
+                Text(resultMessage)
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
+                    .padding()
                 
                 HStack(spacing: 20) {
                     Button(action: {
@@ -70,7 +78,7 @@ struct ContentView: View {
                     }
                     .disabled(isAnswered)
                 }
-                .padding(.top, 20)
+                .padding(.top, 10)
 
                 // New round button
                 Button(action: {
@@ -102,17 +110,17 @@ struct ContentView: View {
         return true
     }
 
-    // Check user answer, update score, and disable buttons
+    // Check user answer, update score, and show result message
     func checkAnswer(isPrime: Bool) {
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true // Disable buttons after answering
 
         if isPrime == correctAnswer {
             score += 1 // Increase score on correct answer
-            print("Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime"). Score: \(score)")
+            resultMessage = "✅ \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
             score -= 1 // Decrease score on incorrect answer
-            print("Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime"). Score: \(score)")
+            resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
         }
     }
 
@@ -120,6 +128,7 @@ struct ContentView: View {
     func generateNewNumber() {
         number = Int.random(in: 1...100) // Generate a new number
         isAnswered = false // Reset button state
+        resultMessage = "" // Clear result message
     }
 }
 
@@ -128,3 +137,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
