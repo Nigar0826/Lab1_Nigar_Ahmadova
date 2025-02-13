@@ -15,14 +15,15 @@ struct ContentView: View {
     @State private var totalAttempts = 0 // Total number of attempts
     @State private var correctAnswers = 0 // Count of correct answers
     @State private var gameOver = false // Track game state
-    @State private var showSummary = false // Show summary dialog
+    @State private var showSummary = false // Show summary dialog when 10 rounds are complete
 
     var body: some View {
         ZStack {
             Color(.systemTeal)
                 .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
-            
+
+            // Game UI - Buttons, Number Display, Score, etc.
             VStack(spacing: 20) {
                 HStack {
                     Text("Score: \(score)")
@@ -42,7 +43,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .bold()
                     .shadow(radius: 5)
-                
+
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 220, height: 120)
@@ -59,11 +60,10 @@ struct ContentView: View {
                     .bold()
                     .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
                     .padding()
-                
+
+                // Prime & Not Prime Buttons
                 HStack(spacing: 20) {
-                    Button(action: {
-                        checkAnswer(isPrime: true)
-                    }) {
+                    Button(action: { checkAnswer(isPrime: true) }) {
                         Text("Prime")
                             .font(.title)
                             .frame(width: 150, height: 60)
@@ -73,10 +73,8 @@ struct ContentView: View {
                             .shadow(radius: 5)
                     }
                     .disabled(isAnswered)
-                    
-                    Button(action: {
-                        checkAnswer(isPrime: false)
-                    }) {
+
+                    Button(action: { checkAnswer(isPrime: false) }) {
                         Text("Not Prime")
                             .font(.title)
                             .frame(width: 150, height: 60)
@@ -89,9 +87,10 @@ struct ContentView: View {
                 }
                 .padding(.top, 10)
 
+                // Next Number Button / Finish Game Button
                 Button(action: {
                     if totalAttempts == 10 {
-                        showSummary = true // Show summary dialog
+                        showSummary = true // Show summary popup
                     } else {
                         generateNewNumber()
                     }
@@ -107,18 +106,41 @@ struct ContentView: View {
                 .padding(.top, 10)
                 .disabled(!isAnswered)
             }
-        }
-        .alert(isPresented: $showSummary) { // Show summary alert
-            Alert(
-                title: Text("⏳ Game Over!"),
-                message: Text("""
-                    ✅ Correct Answers: \(correctAnswers)/10
-                    🏅 Final Score: \(score)
-                """),
-                dismissButton: .default(Text("OK"), action: {
-                    gameOver = true // After dismissing, go to Game Over screen
-                })
-            )
+
+            // Overlay Summary Dialog
+            if showSummary {
+                VStack(spacing: 20) {
+                    Text("⏳ Game Over!")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.black)
+
+                    Text("✔️ Correct Answers: \(correctAnswers)/10")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.black)
+
+                    Text("🏅 Final Score: \(score)")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.black)
+
+                    Button(action: {
+                        showSummary = false
+                        gameOver = true
+                    }) {
+                        Text("OK")
+                            .font(.system(size: 24, weight: .bold))
+                            .frame(width: 150, height: 50)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .padding(.top, 10)
+                }
+                .frame(width: 300, height: 250)
+                .background(Color.white)
+                .cornerRadius(20)
+                .shadow(radius: 10)
+            }
         }
     }
 
