@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var totalAttempts = 0 // Total number of attempts
     @State private var correctAnswers = 0 // Count of correct answers
     @State private var gameOver = false // Track game state
+    @State private var showSummary = false // Show summary dialog
 
     var body: some View {
         ZStack {
@@ -22,120 +23,102 @@ struct ContentView: View {
                 .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
             
-            if gameOver {
-                VStack(spacing: 20) {
-                    // Show Game Over Screen
-                    Text("Game Over!")
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.red)
-                        .padding()
-
-                    Text("Correct Answers: \(correctAnswers)/10")
+            VStack(spacing: 20) {
+                HStack {
+                    Text("Score: \(score)")
                         .font(.title2)
                         .foregroundColor(.white)
                         .bold()
-
-                    Button(action: {
-                        restartGame()
-                    }) {
-                        Text("Restart Game")
-                            .font(.title2)
-                            .frame(width: 200, height: 50)
-                            .background(Color.orange.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                    }
-                    .padding(.top, 10)
-                }
-            } else {
-                VStack(spacing: 20) {
-                    HStack {
-                        Text("Score: \(score)")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .bold()
-                        Spacer()
-                        Text("Attempts: \(totalAttempts)/10")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .bold()
-                    }
-                    .padding(.horizontal, 30)
-
-                    Text("Is this number prime?")
-                        .font(.largeTitle)
+                    Spacer()
+                    Text("Attempts: \(totalAttempts)/10")
+                        .font(.title2)
                         .foregroundColor(.white)
                         .bold()
+                }
+                .padding(.horizontal, 30)
+
+                Text("Is this number prime?")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                    .bold()
+                    .shadow(radius: 5)
+                
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: 220, height: 120)
+                    .overlay(
+                        Text("\(number)")
+                            .font(.system(size: 50, weight: .bold))
+                            .foregroundColor(Color(.systemIndigo))
+                    )
+                    .shadow(radius: 10)
+
+                // Display result message
+                Text(resultMessage)
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
+                    .padding()
+                
+                HStack(spacing: 20) {
+                    Button(action: {
+                        checkAnswer(isPrime: true)
+                    }) {
+                        Text("Prime")
+                            .font(.title)
+                            .frame(width: 150, height: 60)
+                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(isAnswered)
+                    
+                    Button(action: {
+                        checkAnswer(isPrime: false)
+                    }) {
+                        Text("Not Prime")
+                            .font(.title)
+                            .frame(width: 150, height: 60)
+                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(isAnswered)
+                }
+                .padding(.top, 10)
+
+                Button(action: {
+                    if totalAttempts == 10 {
+                        showSummary = true // Show summary dialog
+                    } else {
+                        generateNewNumber()
+                    }
+                }) {
+                    Text(totalAttempts == 10 ? "Finish Game" : "Next Number")
+                        .font(.title2)
+                        .frame(width: 180, height: 50)
+                        .background(Color.green.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(15)
                         .shadow(radius: 5)
-                    
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.8))
-                        .frame(width: 220, height: 120)
-                        .overlay(
-                            Text("\(number)")
-                                .font(.system(size: 50, weight: .bold))
-                                .foregroundColor(Color(.systemIndigo))
-                        )
-                        .shadow(radius: 10)
-
-                    // Display result message
-                    Text(resultMessage)
-                        .font(.title2)
-                        .bold()
-                        .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
-                        .padding()
-                    
-                    HStack(spacing: 20) {
-                        Button(action: {
-                            checkAnswer(isPrime: true)
-                        }) {
-                            Text("Prime")
-                                .font(.title)
-                                .frame(width: 150, height: 60)
-                                .background(isAnswered ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
-                                .shadow(radius: 5)
-                        }
-                        .disabled(isAnswered)
-                        
-                        Button(action: {
-                            checkAnswer(isPrime: false)
-                        }) {
-                            Text("Not Prime")
-                                .font(.title)
-                                .frame(width: 150, height: 60)
-                                .background(isAnswered ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
-                                .foregroundColor(.white)
-                                .cornerRadius(20)
-                                .shadow(radius: 5)
-                        }
-                        .disabled(isAnswered)
-                    }
-                    .padding(.top, 10)
-
-                    // After 10 attempts, "Next Number" becomes "Finish Game"
-                    Button(action: {
-                        if totalAttempts == 10 {
-                            gameOver = true
-                        } else {
-                            generateNewNumber()
-                        }
-                    }) {
-                        Text(totalAttempts == 10 ? "Finish Game" : "Next Number")
-                            .font(.title2)
-                            .frame(width: 180, height: 50)
-                            .background(Color.green.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                    }
-                    .padding(.top, 10)
-                    .disabled(!isAnswered)
                 }
+                .padding(.top, 10)
+                .disabled(!isAnswered)
             }
+        }
+        .alert(isPresented: $showSummary) { // Show summary alert
+            Alert(
+                title: Text("⏳ Game Over!"),
+                message: Text("""
+                    ✅ Correct Answers: \(correctAnswers)/10
+                    🏅 Final Score: \(score)
+                """),
+                dismissButton: .default(Text("OK"), action: {
+                    gameOver = true // After dismissing, go to Game Over screen
+                })
+            )
         }
     }
 
@@ -150,9 +133,9 @@ struct ContentView: View {
         return true
     }
 
-    // Keep last result visible after the last attempt
+    // Show last answer, then display summary
     func checkAnswer(isPrime: Bool) {
-        guard totalAttempts < 10 else { return } // Prevent extra attempts
+        guard totalAttempts < 10 else { return }
 
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true
@@ -177,7 +160,7 @@ struct ContentView: View {
         }
     }
 
-    // Restart the game
+    // Restart the game when the "Restart Game" button is clicked
     func restartGame() {
         number = Int.random(in: 1...100)
         isAnswered = false
@@ -186,5 +169,6 @@ struct ContentView: View {
         totalAttempts = 0
         correctAnswers = 0
         gameOver = false
+        showSummary = false
     }
 }
