@@ -14,16 +14,15 @@ struct ContentView: View {
     @State private var resultMessage = "" // Message to display result
     @State private var totalAttempts = 0 // Total number of attempts
     @State private var correctAnswers = 0 // Count of correct answers
+    @State private var gameOver = false // Track game state
 
     var body: some View {
         ZStack {
-            // Soft, semi-transparent background
             Color(.systemTeal)
-                .opacity(0.4) // Adjust transparency
+                .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 20) {
-                // Score and Attempts Display
                 HStack {
                     Text("Score: \(score)")
                         .font(.title2)
@@ -43,7 +42,6 @@ struct ContentView: View {
                     .bold()
                     .shadow(radius: 5)
                 
-                // Number display inside a rounded card
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 220, height: 120)
@@ -54,7 +52,7 @@ struct ContentView: View {
                     )
                     .shadow(radius: 10)
 
-                // ✅ Display result message
+                // Display result message
                 Text(resultMessage)
                     .font(.title2)
                     .bold()
@@ -68,12 +66,12 @@ struct ContentView: View {
                         Text("Prime")
                             .font(.title)
                             .frame(width: 150, height: 60)
-                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
+                            .background(isAnswered || gameOver ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
                             .foregroundColor(.white)
                             .cornerRadius(20)
                             .shadow(radius: 5)
                     }
-                    .disabled(isAnswered)
+                    .disabled(isAnswered || gameOver)
                     
                     Button(action: {
                         checkAnswer(isPrime: false)
@@ -81,29 +79,28 @@ struct ContentView: View {
                         Text("Not Prime")
                             .font(.title)
                             .frame(width: 150, height: 60)
-                            .background(isAnswered ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
+                            .background(isAnswered || gameOver ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
                             .foregroundColor(.white)
                             .cornerRadius(20)
                             .shadow(radius: 5)
                     }
-                    .disabled(isAnswered)
+                    .disabled(isAnswered || gameOver)
                 }
                 .padding(.top, 10)
 
-                // New round button
                 Button(action: {
                     generateNewNumber()
                 }) {
                     Text("Next Number")
                         .font(.title2)
                         .frame(width: 180, height: 50)
-                        .background(Color.green.opacity(0.8))
+                        .background(gameOver ? Color.gray.opacity(0.6) : Color.green.opacity(0.8))
                         .foregroundColor(.white)
                         .cornerRadius(15)
                         .shadow(radius: 5)
                 }
                 .padding(.top, 10)
-                .disabled(!isAnswered) // Only enable after answering
+                .disabled(!isAnswered || gameOver) // Disabled if game is over
             }
             .padding()
         }
@@ -120,42 +117,36 @@ struct ContentView: View {
         return true
     }
 
-    // ✅ Check user answer, update score, and track attempts
+    // Check user answer, update score, and track attempts
     func checkAnswer(isPrime: Bool) {
+        guard totalAttempts < 10 else { return } // Prevent extra attempts
+
         let correctAnswer = self.isPrime(self.number)
-        isAnswered = true // Disable buttons after answering
-        totalAttempts += 1 // Increase attempt count
+        isAnswered = true
+        totalAttempts += 1
 
         if isPrime == correctAnswer {
-            score += 1 // Increase score on correct answer
-            correctAnswers += 1 // Count correct answers
+            score += 1
+            correctAnswers += 1
             resultMessage = "✅ \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
-            score -= 1 // Decrease score on incorrect answer
+            score -= 1
             resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
         }
 
-        // ✅ Step 10: After 10 attempts, show summary (to be implemented in Step 10)
+        // ✅ Stop game after 10 attempts
         if totalAttempts == 10 {
-            showSummary()
+            gameOver = true
+            print("Game Over! Total Attempts: \(totalAttempts), Correct Answers: \(correctAnswers)")
         }
     }
 
     // Generate a new number and reset state
     func generateNewNumber() {
-        number = Int.random(in: 1...100) // Generate a new number
-        isAnswered = false // Reset button state
-        resultMessage = "" // Clear result message
-    }
-
-    // ✅ Placeholder for summary dialog (to be implemented in Step 10)
-    func showSummary() {
-        print("Game Over! Total Attempts: \(totalAttempts), Correct Answers: \(correctAnswers)")
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+        if totalAttempts < 10 {
+            number = Int.random(in: 1...100) // Generate a new number
+            isAnswered = false
+            resultMessage = ""
+        }
     }
 }
