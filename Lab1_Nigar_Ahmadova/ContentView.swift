@@ -12,20 +12,30 @@ struct ContentView: View {
     @State private var isAnswered = false // Track if the user already selected an answer
     @State private var score = 0 // User score
     @State private var resultMessage = "" // Message to display result
+    @State private var totalAttempts = 0 // Total number of attempts
+    @State private var correctAnswers = 0 // Count of correct answers
 
     var body: some View {
         ZStack {
+            // Soft, semi-transparent background
             Color(.systemTeal)
-                .opacity(0.4)
+                .opacity(0.4) // Adjust transparency
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 20) {
-                // Score Display
-                Text("Score: \(score)")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .bold()
-                    .padding(.top, 10)
+                // Score and Attempts Display
+                HStack {
+                    Text("Score: \(score)")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .bold()
+                    Spacer()
+                    Text("Attempts: \(totalAttempts)/10")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .bold()
+                }
+                .padding(.horizontal, 30)
 
                 Text("Is this number prime?")
                     .font(.largeTitle)
@@ -44,7 +54,7 @@ struct ContentView: View {
                     )
                     .shadow(radius: 10)
 
-                // Show the result message
+                // ✅ Display result message
                 Text(resultMessage)
                     .font(.title2)
                     .bold()
@@ -110,17 +120,24 @@ struct ContentView: View {
         return true
     }
 
-    // Check user answer, update score, and show result message
+    // ✅ Check user answer, update score, and track attempts
     func checkAnswer(isPrime: Bool) {
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true // Disable buttons after answering
+        totalAttempts += 1 // Increase attempt count
 
         if isPrime == correctAnswer {
             score += 1 // Increase score on correct answer
+            correctAnswers += 1 // Count correct answers
             resultMessage = "✅ \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
             score -= 1 // Decrease score on incorrect answer
             resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
+        }
+
+        // ✅ Step 10: After 10 attempts, show summary (to be implemented in Step 10)
+        if totalAttempts == 10 {
+            showSummary()
         }
     }
 
@@ -130,6 +147,11 @@ struct ContentView: View {
         isAnswered = false // Reset button state
         resultMessage = "" // Clear result message
     }
+
+    // ✅ Placeholder for summary dialog (to be implemented in Step 10)
+    func showSummary() {
+        print("Game Over! Total Attempts: \(totalAttempts), Correct Answers: \(correctAnswers)")
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -137,4 +159,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-
