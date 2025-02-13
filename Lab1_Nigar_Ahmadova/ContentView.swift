@@ -22,22 +22,9 @@ struct ContentView: View {
                 .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 20) {
-                HStack {
-                    Text("Score: \(score)")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .bold()
-                    Spacer()
-                    Text("Attempts: \(totalAttempts)/10")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .bold()
-                }
-                .padding(.horizontal, 30)
-
-                if gameOver {
-                    // Show Game Over Message
+            if gameOver {
+                VStack(spacing: 20) {
+                    // Show Game Over Screen
                     Text("Game Over!")
                         .font(.largeTitle)
                         .bold()
@@ -49,7 +36,6 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .bold()
 
-                    // Show Restart Game Button after Game Over
                     Button(action: {
                         restartGame()
                     }) {
@@ -62,7 +48,22 @@ struct ContentView: View {
                             .shadow(radius: 5)
                     }
                     .padding(.top, 10)
-                } else {
+                }
+            } else {
+                VStack(spacing: 20) {
+                    HStack {
+                        Text("Score: \(score)")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .bold()
+                        Spacer()
+                        Text("Attempts: \(totalAttempts)/10")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .bold()
+                    }
+                    .padding(.horizontal, 30)
+
                     Text("Is this number prime?")
                         .font(.largeTitle)
                         .foregroundColor(.white)
@@ -115,10 +116,15 @@ struct ContentView: View {
                     }
                     .padding(.top, 10)
 
+                    // After 10 attempts, "Next Number" becomes "Finish Game"
                     Button(action: {
-                        generateNewNumber()
+                        if totalAttempts == 10 {
+                            gameOver = true
+                        } else {
+                            generateNewNumber()
+                        }
                     }) {
-                        Text("Next Number")
+                        Text(totalAttempts == 10 ? "Finish Game" : "Next Number")
                             .font(.title2)
                             .frame(width: 180, height: 50)
                             .background(Color.green.opacity(0.8))
@@ -130,7 +136,6 @@ struct ContentView: View {
                     .disabled(!isAnswered)
                 }
             }
-            .padding()
         }
     }
 
@@ -145,9 +150,9 @@ struct ContentView: View {
         return true
     }
 
-    // Check user answer, update score, and track attempts
+    // Keep last result visible after the last attempt
     func checkAnswer(isPrime: Bool) {
-        guard totalAttempts < 10 else { return } // Prevent extra attempts
+        guard totalAttempts < 10 else { return }
 
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true
@@ -161,11 +166,6 @@ struct ContentView: View {
             score -= 1
             resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
         }
-
-        // Stop game after 10 attempts
-        if totalAttempts == 10 {
-            gameOver = true
-        }
     }
 
     // Generate a new number and reset state
@@ -177,7 +177,7 @@ struct ContentView: View {
         }
     }
 
-    // Restarting the game
+    // Restart the game
     func restartGame() {
         number = Int.random(in: 1...100)
         isAnswered = false
