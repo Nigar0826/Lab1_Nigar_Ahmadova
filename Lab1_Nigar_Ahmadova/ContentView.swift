@@ -36,60 +36,85 @@ struct ContentView: View {
                 }
                 .padding(.horizontal, 30)
 
-                Text("Is this number prime?")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
-                    .bold()
-                    .shadow(radius: 5)
-                
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.8))
-                    .frame(width: 220, height: 120)
-                    .overlay(
-                        Text("\(number)")
-                            .font(.system(size: 50, weight: .bold))
-                            .foregroundColor(Color(.systemIndigo))
-                    )
-                    .shadow(radius: 10)
+                if gameOver {
+                    // Show Game Over Message
+                    Text("Game Over!")
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundColor(.red)
+                        .padding()
 
-                // Display result message
-                Text(resultMessage)
-                    .font(.title2)
-                    .bold()
-                    .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
-                    .padding()
-                
-                HStack(spacing: 20) {
+                    Text("Correct Answers: \(correctAnswers)/10")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .bold()
+
+                    // Show Restart Game Button after Game Over
                     Button(action: {
-                        checkAnswer(isPrime: true)
+                        restartGame()
                     }) {
-                        Text("Prime")
-                            .font(.title)
-                            .frame(width: 150, height: 60)
-                            .background(isAnswered || gameOver ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
+                        Text("Restart Game")
+                            .font(.title2)
+                            .frame(width: 200, height: 50)
+                            .background(Color.orange.opacity(0.8))
                             .foregroundColor(.white)
-                            .cornerRadius(20)
+                            .cornerRadius(15)
                             .shadow(radius: 5)
                     }
-                    .disabled(isAnswered || gameOver)
+                    .padding(.top, 10)
+                } else {
+                    Text("Is this number prime?")
+                        .font(.largeTitle)
+                        .foregroundColor(.white)
+                        .bold()
+                        .shadow(radius: 5)
                     
-                    Button(action: {
-                        checkAnswer(isPrime: false)
-                    }) {
-                        Text("Not Prime")
-                            .font(.title)
-                            .frame(width: 150, height: 60)
-                            .background(isAnswered || gameOver ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
-                            .foregroundColor(.white)
-                            .cornerRadius(20)
-                            .shadow(radius: 5)
-                    }
-                    .disabled(isAnswered || gameOver)
-                }
-                .padding(.top, 10)
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white.opacity(0.8))
+                        .frame(width: 220, height: 120)
+                        .overlay(
+                            Text("\(number)")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundColor(Color(.systemIndigo))
+                        )
+                        .shadow(radius: 10)
 
-                // Show "Next Number" button only if the game is not over
-                if !gameOver {
+                    // Display result message
+                    Text(resultMessage)
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
+                        .padding()
+                    
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            checkAnswer(isPrime: true)
+                        }) {
+                            Text("Prime")
+                                .font(.title)
+                                .frame(width: 150, height: 60)
+                                .background(isAnswered ? Color.gray.opacity(0.6) : Color.blue.opacity(0.7))
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                                .shadow(radius: 5)
+                        }
+                        .disabled(isAnswered)
+                        
+                        Button(action: {
+                            checkAnswer(isPrime: false)
+                        }) {
+                            Text("Not Prime")
+                                .font(.title)
+                                .frame(width: 150, height: 60)
+                                .background(isAnswered ? Color.gray.opacity(0.6) : Color.pink.opacity(0.7))
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                                .shadow(radius: 5)
+                        }
+                        .disabled(isAnswered)
+                    }
+                    .padding(.top, 10)
+
                     Button(action: {
                         generateNewNumber()
                     }) {
@@ -102,23 +127,7 @@ struct ContentView: View {
                             .shadow(radius: 5)
                     }
                     .padding(.top, 10)
-                    .disabled(!isAnswered || gameOver)
-                }
-
-                // Show Restart Game Button when game is over
-                if gameOver {
-                    Button(action: {
-                        restartGame()
-                    }) {
-                        Text("Restart Game")
-                            .font(.title2)
-                            .frame(width: 180, height: 50)
-                            .background(Color.orange.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                    }
-                    .padding(.top, 10)
+                    .disabled(!isAnswered)
                 }
             }
             .padding()
@@ -153,10 +162,9 @@ struct ContentView: View {
             resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
         }
 
-        // Stop the game after 10 attempts
+        // Stop game after 10 attempts
         if totalAttempts == 10 {
             gameOver = true
-            print("Game Over! Total Attempts: \(totalAttempts), Correct Answers: \(correctAnswers)")
         }
     }
 
