@@ -16,10 +16,10 @@ struct ContentView: View {
     @State private var correctAnswers = 0
     @State private var gameOver = false
     @State private var showSummary = false
-    @State private var showStartScreen = true // Toggle for start screen
+    @State private var showStartScreen = true
     
-    @State private var timeLeft = 5 // Timer starts at 5 seconds
-    @State private var timer: Timer? // Timer variable
+    @State private var timeLeft = 5 // Countdown variable
+    @State private var timer: Timer?
 
     var body: some View {
         ZStack {
@@ -28,7 +28,6 @@ struct ContentView: View {
                 .edgesIgnoringSafeArea(.all)
 
             if showStartScreen {
-                // Display "Start Game" button
                 Button(action: {
                     restartGame()
                 }) {
@@ -41,7 +40,6 @@ struct ContentView: View {
                         .shadow(radius: 5)
                 }
             } else {
-                // Main Game UI
                 VStack(spacing: 20) {
                     HStack {
                         Text("Score: \(score)")
@@ -72,7 +70,7 @@ struct ContentView: View {
                         )
                         .shadow(radius: 10)
 
-                    // Timer Display
+                    // Countdown Display
                     Text("Time Left: \(timeLeft)")
                         .font(.title2)
                         .bold()
@@ -129,7 +127,7 @@ struct ContentView: View {
 
                     Button(action: {
                         showSummary = false
-                        showStartScreen = true // Back to start screen
+                        showStartScreen = true
                     }) {
                         Text("OK")
                             .font(.system(size: 24, weight: .bold))
@@ -149,18 +147,16 @@ struct ContentView: View {
         }
     }
 
-    // Prime Number Checker
     func isPrime(_ num: Int) -> Bool {
         if num < 2 { return false }
-        for i in 2..<num {
-            if num % i == 0 {
-                return false
-            }
+        if num == 2 { return true }
+        if num % 2 == 0 { return false }
+        for i in stride(from: 3, to: Int(Double(num).squareRoot()) + 1, by: 2) {
+            if num % i == 0 { return false }
         }
         return true
     }
 
-    // Show last answer, then display summary
     func checkAnswer(isPrime: Bool) {
         guard totalAttempts < 10 else { return }
 
@@ -168,7 +164,6 @@ struct ContentView: View {
         isAnswered = true
         totalAttempts += 1
 
-        // Stop the timer when an answer is selected
         timer?.invalidate()
         
         if isPrime == correctAnswer {
@@ -176,7 +171,7 @@ struct ContentView: View {
             correctAnswers += 1
             resultMessage = "✅ Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
-            score -= 1
+            if score > 0 { score -= 1 }
             resultMessage = "❌ Wrong! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         }
 
@@ -191,18 +186,16 @@ struct ContentView: View {
         }
     }
 
-    // Generate a new number & start timer
     func generateNewNumber() {
         if totalAttempts < 10 {
             number = Int.random(in: 1...100)
             isAnswered = false
             resultMessage = ""
-            timeLeft = 5 // Reset timer
+            timeLeft = 5 // Reset countdown
             startTimer()
         }
     }
 
-    // Restart game and go to start screen
     func restartGame() {
         number = Int.random(in: 1...100)
         isAnswered = false
@@ -212,20 +205,24 @@ struct ContentView: View {
         correctAnswers = 0
         gameOver = false
         showSummary = false
-        showStartScreen = false // Move user back into game
+        showStartScreen = false
         startTimer()
     }
 
-    // Start the 5-second timer
+    // Start Timer with Countdown
     func startTimer() {
         timer?.invalidate()
+        timeLeft = 5
+
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             if timeLeft > 0 {
                 timeLeft -= 1
-            } else {
+            }
+            
+            if timeLeft == 0 {
                 timer?.invalidate()
                 if !isAnswered {
-                    checkAnswer(isPrime: false) // Auto-mark as wrong
+                    checkAnswer(isPrime: false)
                 }
             }
         }
