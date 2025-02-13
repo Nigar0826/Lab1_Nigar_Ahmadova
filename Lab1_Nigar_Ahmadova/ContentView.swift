@@ -88,19 +88,38 @@ struct ContentView: View {
                 }
                 .padding(.top, 10)
 
-                Button(action: {
-                    generateNewNumber()
-                }) {
-                    Text("Next Number")
-                        .font(.title2)
-                        .frame(width: 180, height: 50)
-                        .background(gameOver ? Color.gray.opacity(0.6) : Color.green.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(15)
-                        .shadow(radius: 5)
+                // Show "Next Number" button only if the game is not over
+                if !gameOver {
+                    Button(action: {
+                        generateNewNumber()
+                    }) {
+                        Text("Next Number")
+                            .font(.title2)
+                            .frame(width: 180, height: 50)
+                            .background(Color.green.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(15)
+                            .shadow(radius: 5)
+                    }
+                    .padding(.top, 10)
+                    .disabled(!isAnswered || gameOver)
                 }
-                .padding(.top, 10)
-                .disabled(!isAnswered || gameOver) // Disabled if game is over
+
+                // Show Restart Game Button when game is over
+                if gameOver {
+                    Button(action: {
+                        restartGame()
+                    }) {
+                        Text("Restart Game")
+                            .font(.title2)
+                            .frame(width: 180, height: 50)
+                            .background(Color.orange.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(15)
+                            .shadow(radius: 5)
+                    }
+                    .padding(.top, 10)
+                }
             }
             .padding()
         }
@@ -134,7 +153,7 @@ struct ContentView: View {
             resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
         }
 
-        // ✅ Stop game after 10 attempts
+        // Stop the game after 10 attempts
         if totalAttempts == 10 {
             gameOver = true
             print("Game Over! Total Attempts: \(totalAttempts), Correct Answers: \(correctAnswers)")
@@ -144,9 +163,20 @@ struct ContentView: View {
     // Generate a new number and reset state
     func generateNewNumber() {
         if totalAttempts < 10 {
-            number = Int.random(in: 1...100) // Generate a new number
+            number = Int.random(in: 1...100)
             isAnswered = false
             resultMessage = ""
         }
+    }
+
+    // Restarting the game
+    func restartGame() {
+        number = Int.random(in: 1...100)
+        isAnswered = false
+        resultMessage = ""
+        score = 0
+        totalAttempts = 0
+        correctAnswers = 0
+        gameOver = false
     }
 }
