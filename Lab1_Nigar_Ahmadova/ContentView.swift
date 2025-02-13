@@ -16,7 +16,10 @@ struct ContentView: View {
     @State private var correctAnswers = 0
     @State private var gameOver = false
     @State private var showSummary = false
-    @State private var showStartScreen = true // Toggle for the start screen
+    @State private var showStartScreen = true // Toggle for start screen
+    
+    @State private var timeLeft = 5 // Timer starts at 5 seconds
+    @State private var timer: Timer? // Timer variable
 
     var body: some View {
         ZStack {
@@ -25,7 +28,7 @@ struct ContentView: View {
                 .edgesIgnoringSafeArea(.all)
 
             if showStartScreen {
-                // "Start Game" button
+                // Display "Start Game" button
                 Button(action: {
                     restartGame()
                 }) {
@@ -69,6 +72,13 @@ struct ContentView: View {
                         )
                         .shadow(radius: 10)
 
+                    // Timer Display
+                    Text("Time Left: \(timeLeft)")
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(timeLeft > 1 ? .green : .red)
+                        .padding()
+
                     Text(resultMessage)
                         .font(.title2)
                         .bold()
@@ -99,28 +109,10 @@ struct ContentView: View {
                         .disabled(isAnswered)
                     }
                     .padding(.top, 10)
-
-                    Button(action: {
-                        if totalAttempts == 10 {
-                            showSummary = true
-                        } else {
-                            generateNewNumber()
-                        }
-                    }) {
-                        Text(totalAttempts == 10 ? "Finish Game" : "Next Number")
-                            .font(.title2)
-                            .frame(width: 180, height: 50)
-                            .background(Color.green.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                    }
-                    .padding(.top, 10)
-                    .disabled(!isAnswered)
                 }
             }
 
-            // Overlay Summary Dialog
+            // Summary Dialog (Popup)
             if showSummary {
                 VStack(spacing: 20) {
                     Text("⏳ Game Over!")
@@ -137,7 +129,7 @@ struct ContentView: View {
 
                     Button(action: {
                         showSummary = false
-                        showStartScreen = true // Navigate to start screen
+                        showStartScreen = true // Back to start screen
                     }) {
                         Text("OK")
                             .font(.system(size: 24, weight: .bold))
@@ -176,22 +168,37 @@ struct ContentView: View {
         isAnswered = true
         totalAttempts += 1
 
+        // Stop the timer when an answer is selected
+        timer?.invalidate()
+        
         if isPrime == correctAnswer {
             score += 1
             correctAnswers += 1
             resultMessage = "✅ Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
             score -= 1
-            resultMessage = "❌ Wrong! \(number) is actually \(correctAnswer ? "Prime" : "Not Prime")"
+            resultMessage = "❌ Wrong! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
+        }
+
+        if totalAttempts == 10 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showSummary = true
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                generateNewNumber()
+            }
         }
     }
 
-    // Generate a new number
+    // Generate a new number & start timer
     func generateNewNumber() {
         if totalAttempts < 10 {
             number = Int.random(in: 1...100)
             isAnswered = false
             resultMessage = ""
+            timeLeft = 5 // Reset timer
+            startTimer()
         }
     }
 
@@ -206,6 +213,21 @@ struct ContentView: View {
         gameOver = false
         showSummary = false
         showStartScreen = false // Move user back into game
+        startTimer()
+    }
+
+    // Start the 5-second timer
+    func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            if timeLeft > 0 {
+                timeLeft -= 1
+            } else {
+                timer?.invalidate()
+                if !isAnswered {
+                    checkAnswer(isPrime: false) // Auto-mark as wrong
+                }
+            }
+        }
     }
 }
-
