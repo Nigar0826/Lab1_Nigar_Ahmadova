@@ -152,7 +152,7 @@ struct ContentView: View {
 
     // Keep last result visible after the last attempt
     func checkAnswer(isPrime: Bool) {
-        guard totalAttempts < 10 else { return }
+        guard totalAttempts < 10 else { return } // Prevent extra attempts
 
         let correctAnswer = self.isPrime(self.number)
         isAnswered = true
@@ -161,10 +161,10 @@ struct ContentView: View {
         if isPrime == correctAnswer {
             score += 1
             correctAnswers += 1
-            resultMessage = "✅ \(correctAnswer ? "Prime" : "Not Prime")"
+            resultMessage = "✅ Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
             score -= 1
-            resultMessage = "❌ \(correctAnswer ? "Prime" : "Not Prime")"
+            resultMessage = "❌ Wrong! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         }
     }
 
