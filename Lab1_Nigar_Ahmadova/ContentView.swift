@@ -8,28 +8,32 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var number = Int.random(in: 1...100)
-    @State private var isAnswered = false
-    @State private var score = 0
-    @State private var resultMessage = ""
-    @State private var totalAttempts = 0
-    @State private var correctAnswers = 0
-    @State private var gameOver = false
-    @State private var showSummary = false
-    @State private var showStartScreen = true
-    
-    @State private var timeLeft = 5 // Countdown variable
-    @State private var timer: Timer?
+    // Game state variables
+    @State private var number = Int.random(in: 1...100) // Random number to check
+    @State private var isAnswered = false // Tracks if the user has answered the current question
+    @State private var score = 0 // User's score
+    @State private var resultMessage = "" // Message indicating correctness of answer
+    @State private var totalAttempts = 0 // Total number of attempts made
+    @State private var correctAnswers = 0 // Count of correct answers
+    @State private var gameOver = false // Tracks if game is over
+    @State private var showSummary = false // Controls display of summary dialog
+    @State private var showStartScreen = true // Controls display of start screen
+
+    // Timer-related variables
+    @State private var timeLeft = 5 // Countdown timer for each question
+    @State private var timer: Timer? // Timer instance
 
     var body: some View {
         ZStack {
+            // Background color
             Color(.systemTeal)
                 .opacity(0.4)
                 .edgesIgnoringSafeArea(.all)
 
+            // Start screen
             if showStartScreen {
                 Button(action: {
-                    restartGame()
+                    restartGame() // Start the game
                 }) {
                     Text("Start Game")
                         .font(.title)
@@ -41,6 +45,7 @@ struct ContentView: View {
                 }
             } else {
                 VStack(spacing: 20) {
+                    // Score and attempts display
                     HStack {
                         Text("Score: \(score)")
                             .font(.title2)
@@ -54,12 +59,14 @@ struct ContentView: View {
                     }
                     .padding(.horizontal, 30)
 
+                    // Game prompt
                     Text("Is this number prime?")
                         .font(.largeTitle)
                         .foregroundColor(.white)
                         .bold()
                         .shadow(radius: 5)
 
+                    // Number display
                     RoundedRectangle(cornerRadius: 20)
                         .fill(Color.white.opacity(0.8))
                         .frame(width: 220, height: 120)
@@ -70,19 +77,21 @@ struct ContentView: View {
                         )
                         .shadow(radius: 10)
 
-                    // Countdown Display
+                    // Countdown timer display
                     Text("Time Left: \(timeLeft)")
                         .font(.title2)
                         .bold()
                         .foregroundColor(timeLeft > 1 ? .green : .red)
                         .padding()
 
+                    // Feedback message after answering
                     Text(resultMessage)
                         .font(.title2)
                         .bold()
                         .foregroundColor(isAnswered ? (resultMessage.contains("✅") ? .green : .red) : .clear)
                         .padding()
 
+                    // Answer buttons
                     HStack(spacing: 20) {
                         Button(action: { checkAnswer(isPrime: true) }) {
                             Text("Prime")
@@ -110,7 +119,7 @@ struct ContentView: View {
                 }
             }
 
-            // Summary Dialog (Popup)
+            // Summary dialog (popup)
             if showSummary {
                 VStack(spacing: 20) {
                     Text("⏳ Game Over!")
@@ -127,7 +136,7 @@ struct ContentView: View {
 
                     Button(action: {
                         showSummary = false
-                        showStartScreen = true
+                        showStartScreen = true // Return to start screen
                     }) {
                         Text("OK")
                             .font(.system(size: 24, weight: .bold))
@@ -147,6 +156,7 @@ struct ContentView: View {
         }
     }
 
+    // Checks if a number is prime
     func isPrime(_ num: Int) -> Bool {
         if num < 2 { return false }
         if num == 2 { return true }
@@ -157,6 +167,7 @@ struct ContentView: View {
         return true
     }
 
+    // Handles user answer selection
     func checkAnswer(isPrime: Bool) {
         guard totalAttempts < 10 else { return }
 
@@ -164,17 +175,19 @@ struct ContentView: View {
         isAnswered = true
         totalAttempts += 1
 
-        timer?.invalidate()
+        timer?.invalidate() // Stop timer
         
+        // Update score and feedback message
         if isPrime == correctAnswer {
             score += 1
             correctAnswers += 1
             resultMessage = "✅ Correct! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         } else {
-            if score > 0 { score -= 1 }
+            if score > 0 { score -= 1 } // Prevent negative score
             resultMessage = "❌ Wrong! \(number) is \(correctAnswer ? "Prime" : "Not Prime")"
         }
 
+        // Show summary if game ends, otherwise continue
         if totalAttempts == 10 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 showSummary = true
@@ -186,6 +199,7 @@ struct ContentView: View {
         }
     }
 
+    // Generates a new number and starts a new round
     func generateNewNumber() {
         if totalAttempts < 10 {
             number = Int.random(in: 1...100)
@@ -196,6 +210,7 @@ struct ContentView: View {
         }
     }
 
+    // Resets game state and starts a new game
     func restartGame() {
         number = Int.random(in: 1...100)
         isAnswered = false
@@ -209,7 +224,7 @@ struct ContentView: View {
         startTimer()
     }
 
-    // Start Timer with Countdown
+    // Starts countdown timer and auto-submits if time runs out
     func startTimer() {
         timer?.invalidate()
         timeLeft = 5
@@ -222,7 +237,7 @@ struct ContentView: View {
             if timeLeft == 0 {
                 timer?.invalidate()
                 if !isAnswered {
-                    checkAnswer(isPrime: false)
+                    checkAnswer(isPrime: false) // Auto-mark as incorrect if no response
                 }
             }
         }
